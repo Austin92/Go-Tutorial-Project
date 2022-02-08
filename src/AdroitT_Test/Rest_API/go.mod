@@ -1,4 +1,4 @@
-module Rest_API
+module Rest_Api
 
 go 1.17
 
