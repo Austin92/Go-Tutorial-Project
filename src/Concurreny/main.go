@@ -6,20 +6,27 @@ import (
 )
 
 func main() {
-	c := make(chan string)
-	go count("sheep", c)
+	//multiple channels
+	c1 := make(chan string)
+	c2 := make(chan string)
 
-	for msg := range c {
-		fmt.Println(msg)
+	go func() {
+		for {
+			c1 <- "Every 500ms"
+			time.Sleep(time.Millisecond * 500)
+		}
+	}()
+
+	go func() {
+		c2 <- "Every two seconds"
+		time.Sleep(time.Second * 2)
+
+	}()
+
+	for {
+		fmt.Println(<-c1)
+		fmt.Println(<-c2)
+
 	}
 
-}
-
-func count(thing string, c chan string) {
-	for i := 1; i <= 10; i++ {
-		fmt.Println(i, thing)
-		time.Sleep(time.Millisecond * 500)
-	}
-
-	close(c)
 }
