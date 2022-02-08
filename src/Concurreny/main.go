@@ -2,36 +2,39 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func main() {
-	//multiple channels
-	c1 := make(chan string)
-	c2 := make(chan string)
+	jobs := make(chan int, 100)
+	results := make(chan int, 100)
 
-	go func() {
-		for {
-			c1 <- "Every 500ms"
-			time.Sleep(time.Millisecond * 500)
-		}
-	}()
+	go worker(jobs, results)
+	go worker(jobs, results)
+	go worker(jobs, results)
+	go worker(jobs, results)
 
-	go func() {
-		c2 <- "Every two seconds"
-		time.Sleep(time.Second * 1)
-
-	}()
-
-	for {
-		select {
-		case msg1 := <-c1:
-			fmt.Println(msg1)
-		case msg2 := <-c2:
-			fmt.Println(msg2)
-
-		}
+	for i := 0; i < 10; i++ {
+		jobs <- i
 
 	}
+	close(jobs)
 
+	for j := 0; j < 10; j++ {
+		fmt.Println(<-results)
+	}
+
+}
+
+func worker(jobs <-chan int, results chan<- int) {
+	for n := range jobs {
+		results <- fib(n)
+	}
+}
+
+func fib(n int) int {
+	if n <= 1 {
+		return n
+	}
+
+	return fib(n-1) + fib(n-2)
 }
